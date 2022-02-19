@@ -114,12 +114,24 @@ function S:HandleScrollBar(frame, horizontal)
 	local scrollUpButton, scrollDownButton
 	local thumb = frame.thumbTexture or frame.GetThumbTexture and frame:GetThumbTexture() or _G[format("%s%s", frameName, "ThumbTexture")]
 
-	if not horizontal then
-		scrollUpButton = parent.scrollUp or _G[format("%s%s", frameName, "ScrollUpButton")] or _G[format("%s%s", frameName, "UpButton")] or _G[format("%s%s", frameName, "ScrollUp")]
-		scrollDownButton = parent.scrollDown or _G[format("%s%s", frameName, "ScrollDownButton")] or _G[format("%s%s", frameName, "DownButton")] or _G[format("%s%s", frameName, "ScrollDown")]
+	if frameName then
+		if not horizontal then
+			scrollUpButton = parent.scrollUp or _G[format("%s%s", frameName, "ScrollUpButton")] or _G[format("%s%s", frameName, "UpButton")] or _G[format("%s%s", frameName, "ScrollUp")]
+			scrollDownButton = parent.scrollDown or _G[format("%s%s", frameName, "ScrollDownButton")] or _G[format("%s%s", frameName, "DownButton")] or _G[format("%s%s", frameName, "ScrollDown")]
+		else
+			scrollUpButton = _G[format("%s%s", frameName, "ScrollLeftButton")] or _G[format("%s%s", frameName, "LeftButton")] or _G[format("%s%s", frameName, "ScrollLeft")]
+			scrollDownButton = _G[format("%s%s", frameName, "ScrollRightButton")] or _G[format("%s%s", frameName, "RightButton")] or _G[format("%s%s", frameName, "ScrollRight")]
+		end
 	else
-		scrollUpButton = _G[format("%s%s", frameName, "ScrollLeftButton")] or _G[format("%s%s", frameName, "LeftButton")] or _G[format("%s%s", frameName, "ScrollLeft")]
-		scrollDownButton = _G[format("%s%s", frameName, "ScrollRightButton")] or _G[format("%s%s", frameName, "RightButton")] or _G[format("%s%s", frameName, "ScrollRight")]
+		for i, child in ipairs({frame:GetChildren()}) do
+			if child:GetObjectType() == "Button" then
+				if child:GetNormalTexture():GetTexture() == [[Interface\Buttons\UI-ScrollBar-ScrollUpButton-Up]] then
+					scrollUpButton = child
+				elseif child:GetNormalTexture():GetTexture() == [[Interface\Buttons\UI-ScrollBar-ScrollDownButton-Up]] then
+					scrollDownButton = child
+				end
+			end
+		end
 	end
 
 	if not horizontal then
@@ -251,6 +263,7 @@ function S:HandleEditBox(frame)
 	end
 end
 
+local dropdownArrowColor = {1, 0.8, 0}
 function S:HandleDropDownBox(frame, width, direction)
 	if frame.backdrop then return end
 
@@ -274,19 +287,20 @@ function S:HandleDropDownBox(frame, width, direction)
 	end
 
 	if button then
-		S:HandleNextPrevButton(button, direction or nil, {1, 0.8, 0})
+		S:HandleNextPrevButton(button, direction or nil, dropdownArrowColor)
 		button:ClearAllPoints()
 		button:Point("RIGHT", frame, "RIGHT", -10, 3)
 		button:Size(16, 16)
 	end
 end
 
+local statusBarColor = {0.01, 0.39, 0.1}
 function S:HandleStatusBar(frame, color)
 	frame:SetFrameLevel(frame:GetFrameLevel() + 1)
 	frame:StripTextures()
 	frame:CreateBackdrop("Transparent")
 	frame:SetStatusBarTexture(E.media.normTex)
-	frame:SetStatusBarColor(unpack(color or {.01, .39, .1}))
+	frame:SetStatusBarColor(unpack(color or statusBarColor))
 	E:RegisterStatusBar(frame)
 end
 
@@ -402,7 +416,6 @@ function S:HandleColorSwatch(frame, size)
 
 	local normalTexture = frame:GetNormalTexture()
 	normalTexture:SetTexture(E.media.blankTex)
-	normalTexture:ClearAllPoints()
 	normalTexture:SetInside(frame.backdrop)
 
 	frame.isSkinned = true
@@ -471,7 +484,7 @@ function S:HandleCloseButton(f, point)
 		f.Texture:Size(12, 12)
 		f:HookScript("OnEnter", handleCloseButtonOnEnter)
 		f:HookScript("OnLeave", handleCloseButtonOnLeave)
-		f:SetHitRectInsets(6, 6, 7, 7)
+		f:SetHitRectInsets(7, 6, 7, 6)
 	end
 
 	if point then
@@ -543,6 +556,7 @@ function S:HandleIconSelectionFrame(frame, numIcons, buttonNameTemplate, frameNa
 	end
 end
 
+local defaultArrowColor = {1, 1, 1}
 function S:HandleNextPrevButton(btn, arrowDir, color, noBackdrop, stipTexts)
 	if btn.isSkinned then return end
 
@@ -601,7 +615,7 @@ function S:HandleNextPrevButton(btn, arrowDir, color, noBackdrop, stipTexts)
 	Pushed:SetRotation(S.ArrowRotation[arrowDir])
 	Disabled:SetRotation(S.ArrowRotation[arrowDir])
 
-	Normal:SetVertexColor(unpack(color or {1, 1, 1}))
+	Normal:SetVertexColor(unpack(color or defaultArrowColor))
 
 	btn.isSkinned = true
 end
@@ -612,6 +626,106 @@ function S:SetNextPrevButtonDirection(frame, arrowDir)
 	frame:GetNormalTexture():SetRotation(direction)
 	frame:GetDisabledTexture():SetRotation(direction)
 	frame:GetPushedTexture():SetRotation(direction)
+end
+
+local function collapseSetNormalTexture_Text(self, texture)
+	if texture then
+		if find(texture, "MinusButton", 1, true) or find(texture, "ZoomOutButton", 1, true) then
+			self.collapseText:SetText("-")
+			return
+		elseif find(texture, "PlusButton", 1, true) or find(texture, "ZoomInButton", 1, true) then
+			self.collapseText:SetText("+")
+			return
+		end
+	end
+	self.collapseText:SetText("")
+end
+local function collapseSetNormalTexture_Texture(self, texture)
+	if texture then
+		if find(texture, "MinusButton", 1, true) or find(texture, "ZoomOutButton", 1, true) then
+			self:GetNormalTexture():SetTexture(E.Media.Textures.Minus)
+			self:GetPushedTexture():SetTexture(E.Media.Textures.Minus)
+			self:GetDisabledTexture():SetTexture(E.Media.Textures.Minus)
+			return
+		elseif find(texture, "PlusButton", 1, true) or find(texture, "ZoomInButton", 1, true) then
+			self:GetNormalTexture():SetTexture(E.Media.Textures.Plus)
+			self:GetPushedTexture():SetTexture(E.Media.Textures.Plus)
+			self:GetDisabledTexture():SetTexture(E.Media.Textures.Plus)
+			return
+		end
+	end
+	self:GetNormalTexture():SetTexture(0, 0, 0, 0)
+	self:GetPushedTexture():SetTexture(0, 0, 0, 0)
+	self:GetDisabledTexture():SetTexture(0, 0, 0, 0)
+end
+function S:HandleCollapseExpandButton(button, defaultState, useFontString, xOffset, yOffset)
+	if button.isSkinned then return end
+
+	if defaultState == "auto" then
+		local texture = button:GetNormalTexture():GetTexture()
+		if find(texture, "MinusButton", 1, true) or find(texture, "ZoomOutButton", 1, true) then
+			defaultState = "-"
+		elseif find(texture, "PlusButton", 1, true) or find(texture, "ZoomInButton", 1, true) then
+			defaultState = "+"
+		end
+	end
+
+	button:SetNormalTexture("")
+	button:SetPushedTexture("")
+	button:SetHighlightTexture("")
+	button:SetDisabledTexture("")
+
+	button.SetPushedTexture = E.noop
+	button.SetHighlightTexture = E.noop
+	button.SetDisabledTexture = E.noop
+
+	if useFontString then
+		button.collapseText = button:CreateFontString(nil, "OVERLAY")
+		button.collapseText:FontTemplate(nil, 22)
+		button.collapseText:Point("LEFT", xOffset or 5, yOffset or 0)
+		button.collapseText:SetText("")
+
+		if defaultState == "+" then
+			button.collapseText:SetText("+")
+		elseif defaultState == "-" then
+			button.collapseText:SetText("-")
+		end
+
+		button.SetNormalTexture = collapseSetNormalTexture_Text
+	else
+		local normalTexture = button:GetNormalTexture()
+		normalTexture:Size(16)
+		normalTexture:ClearAllPoints()
+		normalTexture:Point("LEFT", xOffset or 3, yOffset or 0)
+		normalTexture.SetPoint = E.noop
+
+		local pushedTexture = button:GetPushedTexture()
+		pushedTexture:Size(16)
+		pushedTexture:ClearAllPoints()
+		pushedTexture:Point("LEFT", xOffset or 3, yOffset or 0)
+		pushedTexture.SetPoint = E.noop
+
+		local disabledTexture = button:GetDisabledTexture()
+		disabledTexture:Size(16)
+		disabledTexture:ClearAllPoints()
+		disabledTexture:Point("LEFT", xOffset or 3, yOffset or 0)
+		disabledTexture.SetPoint = E.noop
+		disabledTexture:SetVertexColor(0.6, 0.6, 0.6)
+
+		if defaultState == "+" then
+			normalTexture:SetTexture(E.Media.Textures.Plus)
+			pushedTexture:SetTexture(E.Media.Textures.Plus)
+			disabledTexture:SetTexture(E.Media.Textures.Plus)
+		elseif defaultState == "-" then
+			normalTexture:SetTexture(E.Media.Textures.Minus)
+			pushedTexture:SetTexture(E.Media.Textures.Minus)
+			disabledTexture:SetTexture(E.Media.Textures.Minus)
+		end
+
+		button.SetNormalTexture = collapseSetNormalTexture_Texture
+	end
+
+	button.isSkinned = true
 end
 
 function S:ADDON_LOADED(_, addon)
@@ -650,9 +764,9 @@ end
 
 local UI_PANEL_OFFSET = 7
 
-function S:SetUIPanelWindowInfo(frame, name, value, offset, igroneUpdate)
+function S:SetUIPanelWindowInfo(frame, name, value, offset, igroneUpdate, anyPanel)
 	local frameName = frame and frame.GetName and frame:GetName()
-	if not (frameName and UIPanelWindows[frameName]) then return end
+	if not (frameName and (anyPanel or UIPanelWindows[frameName])) then return end
 
 	name = "UIPanelLayout-"..name
 

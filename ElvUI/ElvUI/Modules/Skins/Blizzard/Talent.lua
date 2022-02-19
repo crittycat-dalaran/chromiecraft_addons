@@ -23,7 +23,7 @@ S:AddCallbackForAddon("Blizzard_TalentUI", "Skin_Blizzard_TalentUI", function()
 		local petTalentGroups = GetNumTalentGroups(false, true)
 
 		if talentGroups + petTalentGroups > 1 then
-			S:SetUIPanelWindowInfo(PlayerTalentFrame, "width", nil, 32)
+			S:SetUIPanelWindowInfo(PlayerTalentFrame, "width", nil, 31)
 			offset = true
 		else
 			S:SetUIPanelWindowInfo(PlayerTalentFrame, "width")
@@ -34,7 +34,7 @@ S:AddCallbackForAddon("Blizzard_TalentUI", "Skin_Blizzard_TalentUI", function()
 				S:SetUIPanelWindowInfo(PlayerTalentFrame, "width")
 				offset = nil
 			elseif not offset and numTalentGroups + numPetTalentGroups > 1 then
-				S:SetUIPanelWindowInfo(PlayerTalentFrame, "width", nil, 32)
+				S:SetUIPanelWindowInfo(PlayerTalentFrame, "width", nil, 31)
 				offset = true
 			end
 		end)
@@ -103,13 +103,17 @@ S:AddCallbackForAddon("Blizzard_TalentUI", "Skin_Blizzard_TalentUI", function()
 
 	PlayerTalentFrameScrollFrame:Width(302)
 	PlayerTalentFrameScrollFrame:Point("TOPRIGHT", PlayerTalentFrame, "TOPRIGHT", -62, -77)
-	PlayerTalentFrameScrollFrame:Point("BOTTOM", PlayerTalentFramePointsBar, "TOP", 0, 0)
+	PlayerTalentFrameScrollFrame:SetPoint("BOTTOM", PlayerTalentFramePointsBar, "TOP", 0, 0)
 
 	PlayerTalentFrameScrollFrameScrollBar:Point("TOPLEFT", PlayerTalentFrameScrollFrame, "TOPRIGHT", 4, -18)
 	PlayerTalentFrameScrollFrameScrollBar:Point("BOTTOMLEFT", PlayerTalentFrameScrollFrame, "BOTTOMRIGHT", 4, 18)
 
 	PlayerTalentFrameResetButton:Point("RIGHT", -4, 1)
 	PlayerTalentFrameLearnButton:Point("RIGHT", PlayerTalentFrameResetButton, "LEFT", -3, 0)
+
+	PlayerSpecTab1:Point("TOPLEFT", PlayerTalentFrame, "TOPRIGHT", -33, -65)
+	PlayerSpecTab1.ClearAllPoints = E.noop
+	PlayerSpecTab1.SetPoint = E.noop
 
 	PlayerTalentFrameTab1:Point("BOTTOMLEFT", 11, 46)
 end)

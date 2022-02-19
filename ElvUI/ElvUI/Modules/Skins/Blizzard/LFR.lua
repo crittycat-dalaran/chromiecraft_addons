@@ -3,9 +3,7 @@ local S = E:GetModule("Skins")
 
 --Lua functions
 local _G = _G
-local find = string.find
 --WoW API / Variables
-local hooksecurefunc = hooksecurefunc
 
 S:AddCallback("Skin_LFR", function()
 	if not E.private.skins.blizzard.enable or not E.private.skins.blizzard.lfr then return end
@@ -67,20 +65,7 @@ S:AddCallback("Skin_LFR", function()
 	for i = 1, NUM_LFR_CHOICE_BUTTONS do
 		local button = _G["LFRQueueFrameSpecificListButton"..i]
 		S:HandleCheckBox(button.enableButton)
-
-		button.expandOrCollapseButton:SetNormalTexture(E.Media.Textures.Plus)
-		button.expandOrCollapseButton.SetNormalTexture = E.noop
-		button.expandOrCollapseButton:GetNormalTexture():Size(16)
-
-		button.expandOrCollapseButton:SetHighlightTexture(nil)
-
-		hooksecurefunc(button.expandOrCollapseButton, "SetNormalTexture", function(self, texture)
-			if find(texture, "MinusButton") then
-				self:GetNormalTexture():SetTexture(E.Media.Textures.Minus)
-			elseif find(texture, "PlusButton") then
-				self:GetNormalTexture():SetTexture(E.Media.Textures.Plus)
-			end
-		end)
+		S:HandleCollapseExpandButton(button.expandOrCollapseButton, "+")
 	end
 
 	LFRQueueFrameSpecificListScrollFrameScrollBar:Point("TOPLEFT", LFRQueueFrameSpecificListScrollFrame, "TOPRIGHT", 5, -17)

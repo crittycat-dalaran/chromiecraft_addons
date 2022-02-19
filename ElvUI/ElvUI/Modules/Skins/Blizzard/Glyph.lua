@@ -83,7 +83,7 @@ S:AddCallbackForAddon("Blizzard_GlyphUI", "Skin_Blizzard_GlyphUI", function()
 		slotAnimations[BOTTOMLEFT] = {["point"] = "CENTER", ["xStart"] = -13, ["xStop"] = -87, ["yStart"] = 18, ["yStop"] = -27}
 		slotAnimations[BOTTOMRIGHT] = {["point"] = "CENTER", ["xStart"] = -13, ["xStop"] = 61, ["yStart"] = 18, ["yStop"] = -27}
 
-		for _, animData in pairs(slotAnimations) do
+		for _, animData in ipairs(slotAnimations) do
 			animData.xStart = animData.xStart + 3
 			animData.yStart = animData.yStart + 8
 			animData.xStop = (animData.xStop + 3) * glyphBGScale
@@ -94,7 +94,7 @@ S:AddCallbackForAddon("Blizzard_GlyphUI", "Skin_Blizzard_GlyphUI", function()
 			local sparkle = _G["GlyphFrameSparkle"..slotID]
 			local animation = slotAnimations[slotID]
 
-			sparkle:SetPoint("CENTER", GlyphFrame, animation.point, animation.xStart, animation.yStart)
+			sparkle:SetPoint(animation.point, animation.xStart, animation.yStart)
 			sparkle.animGroup.translate:SetOffset(animation.xStop - animation.xStart, animation.yStop - animation.yStart)
 		end)
 	end

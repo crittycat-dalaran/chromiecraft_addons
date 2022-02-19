@@ -11,6 +11,7 @@ local GetInstanceInfo = GetInstanceInfo
 local GetSpellCooldown = GetSpellCooldown
 local GetSpellInfo = GetSpellInfo
 local GetTime = GetTime
+local IsResting = IsResting
 local UnitAffectingCombat = UnitAffectingCombat
 local UnitHealth = UnitHealth
 local UnitHealthMax = UnitHealthMax
@@ -160,7 +161,7 @@ local totemTypes = {
 		[58771] = "w4",	-- Mana Spring Totem VI
 		[58773] = "w4",	-- Mana Spring Totem VII
 		[58774] = "w4",	-- Mana Spring Totem VIII
-		[16190] = "w5" 	-- Mana Tide Totem
+		[16190] = "w5"	-- Mana Tide Totem
 	},
 	other = {
 		[724] = "o1"	-- Lightwell
@@ -354,30 +355,36 @@ function mod:StyleFilterSetChanges(frame, actions, HealthColorChanged, BorderCha
 		frame.Name:ClearAllPoints()
 		frame.Name:SetJustifyH("CENTER")
 		frame.Name:SetPoint("TOP", frame)
-		frame.Level:ClearAllPoints()
-		frame.Level:SetPoint("LEFT", frame.Name, "RIGHT")
-		frame.Level:SetJustifyH("LEFT")
-		if not NameColorChanged then
+		frame.Name:SetParent(frame)
+		if mod.db.units[frame.UnitType].level.enable then
+			frame.Level:ClearAllPoints()
+			frame.Level:SetPoint("LEFT", frame.Name, "RIGHT")
+			frame.Level:SetJustifyH("LEFT")
+			frame.Level:SetParent(frame)
+			frame.Level:SetFormattedText(" [%s]", mod:UnitLevel(frame))
+		end
+		if not NameColorChanged or not IconOnlyChanged then
 			mod:Update_Name(frame, true)
 		end
 	end
-	if IconChanged then
+	if IconChanged and (mod.Totems[frame.UnitName] or mod.UniqueUnits[frame.UnitName]) then
 		frame.StyleChanged = true
 		frame.IconChanged = true
 		mod:Configure_IconFrame(frame)
 		mod:Update_IconFrame(frame)
 	end
-	if IconOnlyChanged then
+	if IconOnlyChanged and (mod.Totems[frame.UnitName] or mod.UniqueUnits[frame.UnitName]) then
 		frame.StyleChanged = true
 		frame.IconOnlyChanged = true
-		mod:Update_IconFrame(frame, true)
+		mod:Configure_IconFrame(frame, true)
+		mod:Update_IconFrame(frame)
+		if frame.CastBar:IsShown() then frame.CastBar:Hide() end
 		if frame.Health:IsShown() then frame.Health:Hide() end
-		frame.Level:Hide()
-		frame.Name:Hide()
+		frame.Level:SetText()
+		frame.Name:SetText()
 		mod:Configure_Glow(frame)
 		mod:Update_Glow(frame)
 		mod:Update_RaidIcon(frame)
-		mod:Configure_IconOnlyGlow(frame)
 		mod:Configure_NameOnlyGlow(frame)
 	end
 end
@@ -441,14 +448,16 @@ function mod:StyleFilterClearChanges(frame, HealthColorChanged, BorderChanged, F
 			mod:Configure_Glow(frame)
 			mod:Update_Glow(frame)
 		end
+		frame.Name:ClearAllPoints()
+		frame.Level:ClearAllPoints()
 		if mod.db.units[frame.UnitType].name.enable then
-			frame.Level:Show()
-			frame.Name:ClearAllPoints()
-			frame.Level:ClearAllPoints()
-			mod:Update_Level(frame)
 			mod:Update_Name(frame)
+			frame.Name:SetTextColor(frame.Name.r, frame.Name.g, frame.Name.b)
 		else
 			frame.Name:SetText()
+		end
+		if mod.db.units[frame.UnitType].level.enable then
+			mod:Update_Level(frame)
 		end
 	end
 	if IconChanged then
@@ -466,18 +475,18 @@ function mod:StyleFilterClearChanges(frame, HealthColorChanged, BorderChanged, F
 			mod:Configure_Glow(frame)
 			mod:Update_Glow(frame)
 		end
+		frame.Name:ClearAllPoints()
+		frame.Level:ClearAllPoints()
 		if mod.db.units[frame.UnitType].name.enable then
-			frame.Name:Show()
-			frame.Level:Show()
-			frame.Name:ClearAllPoints()
-			frame.Level:ClearAllPoints()
-			mod:Update_Level(frame)
 			mod:Update_Name(frame)
+			frame.Name:SetTextColor(frame.Name.r, frame.Name.g, frame.Name.b)
 		else
 			frame.Name:SetText()
 		end
+		if mod.db.units[frame.UnitType].level.enable then
+			mod:Update_Level(frame)
+		end
 		mod:Update_RaidIcon(frame)
-		mod:Configure_IconOnlyGlow(frame)
 		mod:Configure_NameOnlyGlow(frame)
 	end
 end
@@ -564,6 +573,11 @@ function mod:StyleFilterConditionCheck(frame, filter, trigger)
 		local maxLevel = (trigger.maxlevel and trigger.maxlevel ~= 0 and (trigger.maxlevel >= level))
 		local matchMyLevel = trigger.mylevel and (level == myLevel)
 		if curLevel or minLevel or maxLevel or matchMyLevel then passed = true else return end
+	end
+
+	-- Resting
+	if trigger.isResting then
+		if IsResting() then passed = true else return end
 	end
 
 	-- Unit Type
@@ -762,6 +776,10 @@ function mod:StyleFilterConfigure()
 				if t.inCombat or t.outOfCombat then
 					mod.StyleFilterTriggerEvents.PLAYER_REGEN_DISABLED = true
 					mod.StyleFilterTriggerEvents.PLAYER_REGEN_ENABLED = true
+				end
+
+				if t.isResting then
+					mod.StyleFilterTriggerEvents.PLAYER_UPDATE_RESTING = 1
 				end
 
 				if t.cooldowns and t.cooldowns.names and next(t.cooldowns.names) then

@@ -121,7 +121,29 @@ P.databars = {
 		orientation = "VERTICAL",
 		hideAtMaxLevel = true,
 		hideInVehicle = false,
-		hideInCombat = false
+		hideInCombat = false,
+		showBubbles = false,
+		questXP = {
+			color = {r = 0, g = 1, b = 0, a = 0.4},
+			tooltip = true,
+			questCurrentZoneOnly = false,
+			questCompletedOnly = false
+		}
+	},
+	petExperience = {
+		enable = true,
+		width = 10,
+		height = 180,
+		textFormat = "NONE",
+		textSize = 11,
+		font = "PT Sans Narrow",
+		fontOutline = "NONE",
+		mouseover = false,
+		orientation = "VERTICAL",
+		hideAtMaxLevel = true,
+		hideInVehicle = false,
+		hideInCombat = false,
+		showBubbles = false
 	},
 	reputation = {
 		enable = false,
@@ -134,7 +156,8 @@ P.databars = {
 		mouseover = false,
 		orientation = "VERTICAL",
 		hideInVehicle = false,
-		hideInCombat = false
+		hideInCombat = false,
+		showBubbles = false
 	}
 }
 
@@ -363,6 +386,10 @@ P.nameplates = {
 		TARGET = {
 			enable = true,
 			glowStyle = "style4",
+			arrow = "ArrowUp",
+			arrowSize = 20,
+			arrowXOffset = 3,
+			arrowYOffset = 0,
 			comboPoints = {
 				enable = true,
 				width = 8,
@@ -395,12 +422,20 @@ P.nameplates = {
 				enable = true,
 				useClassColor = true,
 				abbrev = false,
+				position = "TOPLEFT",
+				parent = "Health",
+				xOffset = 0,
+				yOffset = 2,
 				font = "PT Sans Narrow",
 				fontOutline = "OUTLINE",
 				fontSize = 11
 			},
 			level = {
 				enable = false,
+				position = "TOPRIGHT",
+				parent = "Health",
+				xOffset = 0,
+				yOffset = 2,
 				font = "PT Sans Narrow",
 				fontOutline = "OUTLINE",
 				fontSize = 11
@@ -522,12 +557,20 @@ P.nameplates = {
 				enable = true,
 				useClassColor = true,
 				abbrev = false,
+				position = "TOPLEFT",
+				parent = "Health",
+				xOffset = 0,
+				yOffset = 2,
 				font = "PT Sans Narrow",
 				fontOutline = "OUTLINE",
 				fontSize = 11
 			},
 			level = {
 				enable = true,
+				position = "TOPRIGHT",
+				parent = "Health",
+				xOffset = 0,
+				yOffset = 2,
 				font = "PT Sans Narrow",
 				fontOutline = "OUTLINE",
 				fontSize = 11
@@ -655,12 +698,20 @@ P.nameplates = {
 			name = {
 				enable = true,
 				abbrev = false,
+				position = "TOPLEFT",
+				parent = "Health",
+				xOffset = 0,
+				yOffset = 2,
 				font = "PT Sans Narrow",
 				fontOutline = "OUTLINE",
 				fontSize = 11
 			},
 			level = {
 				enable = true,
+				position = "TOPRIGHT",
+				parent = "Health",
+				xOffset = 0,
+				yOffset = 2,
 				font = "PT Sans Narrow",
 				fontOutline = "OUTLINE",
 				fontSize = 11
@@ -795,12 +846,20 @@ P.nameplates = {
 			name = {
 				enable = true,
 				abbrev = false,
+				position = "TOPLEFT",
+				parent = "Health",
+				xOffset = 0,
+				yOffset = 2,
 				font = "PT Sans Narrow",
 				fontOutline = "OUTLINE",
 				fontSize = 11
 			},
 			level = {
 				enable = true,
+				position = "TOPRIGHT",
+				parent = "Health",
+				xOffset = 0,
+				yOffset = 2,
 				font = "PT Sans Narrow",
 				fontOutline = "OUTLINE",
 				fontSize = 11
@@ -1241,6 +1300,7 @@ P.unitframe = {
 		invertClasspower = false,
 		castColor = {r = 0.31, g = 0.31, b = 0.31},
 		castNoInterrupt = {r = 0.78, g = 0.25, b = 0.25},
+		castInterruptedColor = {r = 0.30, g = 0.30, b = 0.30},
 		castClassColor = false,
 		castReactionColor = false,
 		health = {r = 0.31, g = 0.31, b = 0.31},
@@ -3323,6 +3383,18 @@ P.unitframe = {
 					yOffset = 2,
 					color = {r = 1, g = 0.9, b = 0, a = 1}
 				}
+			},
+			roleIcon = {
+				enable = false,
+				position = "TOPRIGHT",
+				attachTo = "Health",
+				xOffset = 0,
+				yOffset = 0,
+				size = 15,
+				tank = true,
+				healer = true,
+				damager = true,
+				combatHide = false
 			},
 			raidRoleIcons = {
 				enable = true,

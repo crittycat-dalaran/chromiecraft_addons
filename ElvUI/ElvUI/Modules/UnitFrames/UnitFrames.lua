@@ -57,6 +57,7 @@ UF.instanceMapIDs = {
 	[402] = 40,
 	[462] = 15,
 	[483] = 15,
+	[719] = 40,
 }
 
 UF.headerGroupBy = {
@@ -713,7 +714,7 @@ function UF.groupPrototype:AdjustVisibility(frame)
 					UF:UnshowChildUnits(group, group:GetChildren())
 					group:SetAttribute("startingIndex", 1)
 				else
-					group:Reset()
+					group:Reset(frame.groupName)
 				end
 			end
 		end
@@ -751,14 +752,14 @@ function UF.headerPrototype:Update()
 	end
 end
 
-function UF.headerPrototype:Reset()
+function UF.headerPrototype:Reset(group)
 	self:Hide()
 
 	self:SetAttribute("showPlayer", true)
 
 	self:SetAttribute("showSolo", true)
 	self:SetAttribute("showParty", true)
-	self:SetAttribute("showRaid", true)
+	self:SetAttribute("showRaid", group ~= "party" and true or false)
 
 	self:SetAttribute("columnSpacing", nil)
 	self:SetAttribute("columnAnchorPoint", nil)
@@ -783,7 +784,7 @@ function UF:CreateHeader(parent, groupFilter, overrideName, template, groupName,
 	local header = ElvUF:SpawnHeader(overrideName, headerTemplate, nil,
 			"groupFilter", groupFilter,
 			"showParty", true,
-			"showRaid", group == "party" and false or true,
+			"showRaid", group ~= "party" and true or false,
 			"showSolo", true,
 			template and "template", template)
 
@@ -807,10 +808,9 @@ function UF:CreateAndUpdateHeaderGroup(group, groupFilter, template, headerUpdat
 		local _, instanceType, _, _, maxPlayers = GetInstanceInfo()
 		if instanceType == "raid" or instanceType == "pvp" then
 			local mapID = GetCurrentMapAreaID()
-			maxPlayers = 40
-			--if UF.instanceMapIDs[mapID] then
-			--	maxPlayers = UF.instanceMapIDs[mapID]
-			--end
+			if UF.instanceMapIDs[mapID] then
+				maxPlayers = UF.instanceMapIDs[mapID]
+			end
 
 			if maxPlayers > 0 then
 				numGroups = E:Round(maxPlayers/5)

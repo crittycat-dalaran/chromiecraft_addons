@@ -74,10 +74,9 @@ function UF:Raid40SmartVisibility(event)
 		local _, instanceType, _, _, maxPlayers = GetInstanceInfo()
 		if instanceType == "raid" or instanceType == "pvp" then
 			local mapID = GetCurrentMapAreaID()
-			maxPlayers =40
-			--if UF.instanceMapIDs[mapID] then
-			--	maxPlayers = UF.instanceMapIDs[mapID]
-			--end
+			if UF.instanceMapIDs[mapID] then
+				maxPlayers = UF.instanceMapIDs[mapID]
+			end
 
 			UnregisterStateDriver(self, "visibility")
 

@@ -21,10 +21,10 @@ AceConfigDialog.frame.closing = AceConfigDialog.frame.closing or {}
 AceConfigDialog.frame.closeAllOverride = AceConfigDialog.frame.closeAllOverride or {}
 
 -- Lua APIs
-local tconcat, tinsert, tsort, tremove = table.concat, table.insert, table.sort, table.remove
+local tconcat, tinsert, tsort, tremove, wipe = table.concat, table.insert, table.sort, table.remove, table.wipe
 local strmatch, format = string.match, string.format
 local assert, loadstring, error = assert, loadstring, error
-local pairs, next, select, type, unpack, wipe, ipairs = pairs, next, select, type, unpack, wipe, ipairs
+local pairs, next, select, type, unpack, ipairs = pairs, next, select, type, unpack, ipairs
 local rawset, tostring, tonumber = rawset, tostring, tonumber
 local math_min, math_max, math_floor = math.min, math.max, math.floor
 
@@ -1420,16 +1420,22 @@ local function FeedOptions(appName, options,container,rootframe,path,group,inlin
 								check:SetCallback("OnValueChanged",ActivateMultiControl)
 								InjectInfo(check, options, v, path, rootframe, appName)
 								control:AddChild(check)
-								if width == "double" then
-									check:SetWidth(width_multiplier * 2)
-								elseif width == "half" then
-									check:SetWidth(width_multiplier / 2)
-								elseif (type(width) == "number") then
-									control:SetWidth(width_multiplier * width)
-								elseif width == "full" then
-									check.width = "fill"
+
+								local customWidth = control.customWidth or GetOptionsMemberValue("customWidth",v,options,path,appName)
+								if customWidth then
+									check:SetWidth(customWidth)
 								else
-									check:SetWidth(width_multiplier)
+									if width == "double" then
+										check:SetWidth(width_multiplier * 2)
+									elseif width == "half" then
+										check:SetWidth(width_multiplier / 2)
+									elseif (type(width) == "number") then
+										control:SetWidth(width_multiplier * width)
+									elseif width == "full" then
+										check.width = "fill"
+									else
+										check:SetWidth(width_multiplier)
+									end
 								end
 							end
 						end

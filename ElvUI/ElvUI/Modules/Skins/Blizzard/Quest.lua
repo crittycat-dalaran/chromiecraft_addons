@@ -72,7 +72,7 @@ S:AddCallback("Skin_Quest", function()
 	QuestLogCount.SetPoint = E.noop
 
 	QuestLogFrameShowMapButton.text:ClearAllPoints()
-	QuestLogFrameShowMapButton.text:Point("CENTER")
+	QuestLogFrameShowMapButton.text:SetPoint("CENTER")
 	QuestLogFrameShowMapButton:Size(QuestLogFrameShowMapButton.text:GetWidth() + 32, 32)
 
 	QuestLogScrollFrame:Point("TOPLEFT", 19, -62)
@@ -99,7 +99,7 @@ S:AddCallback("Skin_Quest", function()
 	QuestLogFrame:HookScript("OnShow", function()
 		QuestLogDetailScrollFrame.backdrop:Show()
 
-		QuestLogFrameShowMapButton:Point("TOPRIGHT", -30, -24)
+		QuestLogFrameShowMapButton:Point("TOPRIGHT", -30, -23)
 
 		QuestLogDetailScrollFrame:Height(336)
 		QuestLogDetailScrollFrame:Point("TOPRIGHT", -30, -61)
@@ -111,22 +111,7 @@ S:AddCallback("Skin_Quest", function()
 	end)
 
 	for _, questLogTitle in ipairs(QuestLogScrollFrame.buttons) do
-		questLogTitle:SetNormalTexture(E.Media.Textures.Plus)
-		questLogTitle.SetNormalTexture = E.noop
-		questLogTitle:GetNormalTexture():Size(16)
-		questLogTitle:GetNormalTexture():Point("LEFT", 5, 0)
-		questLogTitle:SetHighlightTexture("")
-		questLogTitle.SetHighlightTexture = E.noop
-
-		hooksecurefunc(questLogTitle, "SetNormalTexture", function(self, texture)
-			if find(texture, "MinusButton") then
-				self:GetNormalTexture():SetTexture(E.Media.Textures.Minus)
-			elseif find(texture, "PlusButton") then
-				self:GetNormalTexture():SetTexture(E.Media.Textures.Plus)
-			else
-				self:GetNormalTexture():SetTexture(0, 0, 0, 0)
-			end
-		end)
+		S:HandleCollapseExpandButton(questLogTitle, "+")
 	end
 
 	-- QuestLog Detail Frame
@@ -237,8 +222,9 @@ S:AddCallback("Skin_Quest", function()
 			local button = _G["QuestTitleButton"..i]
 
 			if button:GetFontString() then
-				if button:GetText() and find(button:GetText(), "|cff000000") then
-					button:SetText(gsub(button:GetText(), "|cff000000", "|cffFFFF00"))
+				local text = button:GetText()
+				if text and find(text, "|cff000000") then
+					button:SetText(gsub(text, "|cff000000", "|cffFFFF00"))
 				end
 			end
 		end
@@ -276,10 +262,8 @@ S:AddCallback("Skin_Quest", function()
 		end
 	end
 
-	local function questQualityColors(frame, text, link, quality)
-		if link and not quality then
-			quality = select(3, GetItemInfo(link))
-		end
+	local function questQualityColors(frame, text, link)
+		local quality = link and select(3, GetItemInfo(link))
 
 		if quality then
 			local r, g, b = GetItemQualityColor(quality)
